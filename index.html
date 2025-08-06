@@ -1,236 +1,192 @@
-나의 말:
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OX 퀴즈</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-        }
-        /* 버튼 클릭 시 미세한 애니메이션 효과 */
-        .btn-press {
-            transition: transform 0.1s ease;
-        }
-        .btn-press:active {
-            transform: scale(0.95);
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OX 퀴즈</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+    .btn-press {
+      transition: transform 0.1s ease;
+    }
+    .btn-press:active {
+      transform: scale(0.95);
+    }
+  </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen py-8">
+  <div id="quiz-container" class="bg-white w-full max-w-md mx-4 p-6 md:p-8 rounded-2xl shadow-lg text-center">
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">OX 퀴즈</h1>
+    <p class="text-gray-500 mb-6">문제를 읽고 O 또는 X를 선택하세요.</p>
 
-    <div id="quiz-container" class="bg-white w-full max-w-md mx-4 p-6 md:p-8 rounded-2xl shadow-lg text-center">
-        <h1 class="text-3xl font-bold text-gray-800 mb-2">OX 퀴즈</h1>
-        <p class="text-gray-500 mb-6">문제를 읽고 O 또는 X를 선택하세요.</p>
-
-        <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg mb-6">
-            <p id="score" class="text-lg font-semibold">점수: 0</p>
-        </div>
-
-        <div id="question-box" class="bg-gray-50 p-6 rounded-xl min-h-[120px] flex items-center justify-center mb-6">
-            <p id="question" class="text-xl font-medium text-gray-700"></p>
-        </div>
-
-        <div id="feedback" class="text-2xl font-bold mb-4 min-h-[32px]"></div>
-
-        <!-- 해설이 표시될 영역 -->
-        <div id="explanation-box" class="hidden mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-left">
-            <p class="font-bold text-yellow-800">💡 해설:</p>
-            <p id="explanation" class="text-gray-700 mt-1"></p>
-        </div>
-        
-        <div id="answer-buttons" class="grid grid-cols-2 gap-4 my-6">
-            <button id="btn-o" class="btn-press bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-lg text-4xl shadow-md">O</button>
-            <button id="btn-x" class="btn-press bg-red-500 hover:bg-red-600 text-white font-bold py-4 rounded-lg text-4xl shadow-md">X</button>
-        </div>
-        
-        <button id="next-button" class="btn-press w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 rounded-lg hidden">다음 문제</button>
-
+    <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg mb-6">
+      <p id="score" class="text-lg font-semibold">점수: 0</p>
     </div>
 
-    <!-- 최종 점수 모달 -->
-    <div id="result-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
-        <div class="bg-white p-8 rounded-2xl shadow-xl text-center w-11/12 max-w-sm">
-            <h2 class="text-2xl font-bold mb-4">퀴즈 종료!</h2>
-            <p id="final-score" class="text-xl mb-2"></p>
-            <!-- 점수에 따른 메시지가 표시될 영역 -->
-            <p id="final-message" class="text-lg mb-6 text-gray-700 font-medium"></p>
-            <button id="restart-button" class="btn-press w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-lg">다시 시작하기</button>
-        </div>
+    <div id="question-box" class="bg-gray-50 p-6 rounded-xl min-h-[120px] flex items-center justify-center mb-6">
+      <p id="question" class="text-xl font-medium text-gray-700"></p>
     </div>
 
+    <div id="feedback" class="text-2xl font-bold mb-4 min-h-[32px]"></div>
 
-    <script>
-        // 퀴즈 데이터: question(문제), answer(정답), explanation(해설) 추가
-        const quizData = [
-            { 
-                question: "'아무 생각 말고 푹 쉬어'라는 조언은, 머릿속이 늘 바쁜 우리에겐 '에베레스트산을 등반해봐'처럼 느껴질 때가 있다.", 
-                answer: true,
-                explanation: "맞아요. 생각이 꼬리에 꼬리를 물 때 '생각을 멈추는 것'은 거의 불가능에 가깝죠. 그럴 땐 차라리 다른 곳에 집중할 수 있는 가벼운 활동이 도움이 될 수 있어요."
-            },
-            { 
-                question: "나의 회복 과정에서 가장 중요한 전문가는 의사나 상담사가 아니라, 바로 '나 자신'이다.", 
-                answer: true,
-                explanation: "전문가는 회복의 길을 안내해주는 좋은 파트너이지만, 그 길을 걷는 주체는 바로 '나' 자신이죠. 나의 선택과 노력이 가장 중요합니다."
-            },
-            { 
-                question: "정신과 약의 부작용으로 입이 마를 때, 달콤한 사탕이 가장 좋은 해결책이다.", 
-                answer: false,
-                explanation: "사탕은 일시적으로 침을 나오게 하지만, 당분 때문에 오히려 충치를 유발하거나 입을 더 마르게 할 수 있어요. 무설탕 껌이나 물을 조금씩 마시는 것이 더 좋답니다."
-            },
-            { 
-                question: "불안감이 갑자기 밀려올 때, '불안해하지 말자!'라고 억지로 다짐하는 것이 가장 효과적인 방법이다.", 
-                answer: false,
-                explanation: "감정을 억지로 누르면 오히려 더 커질 수 있어요. '아, 내가 지금 불안하구나'라고 알아차려주고, 심호흡을 하거나 잠시 다른 생각을 하는 것이 도움이 될 수 있습니다."
-            },
-            { 
-                question: "나와 비슷한 경험을 한 동료와의 대화는, 때로는 10번의 전문가 상담보다 더 큰 위로와 힘을 줄 수 있다.", 
-                answer: true,
-                explanation: "물론이죠. '나만 그런 게 아니구나'라는 생각에서 오는 안도감과 유대감은 회복에 아주 큰 힘이 됩니다. 동료지원은 그래서 중요하죠."
-            },
-            { 
-                question: "화가 고흐의 위대한 작품들은 그의 정신적 증상이 가장 심했을 때만 탄생했다.", 
-                answer: false,
-                explanation: "고흐는 증상이 심할 땐 그림을 그릴 수 없었고, 비교적 안정적인 시기에 위대한 작품들을 남겼다고 해요. 창의성은 고통이 아닌 안정 속에서 더 빛날 수 있습니다."
-            },
-            { 
-                question: "컨디션이 안 좋을 때, 일부러 더 활기차게 행동하면 기분도 따라서 좋아질 때가 있다.", 
-                answer: true,
-                explanation: "네, '행동 활성화'라는 기법이에요. 가벼운 산책이나 즐거운 음악 듣기처럼, 작은 행동의 변화가 기분을 긍정적으로 이끌어줄 수 있습니다. 물론, 너무 억지로 할 필요는 없어요!"
-            }
-        ];
+    <div id="explanation-box" class="hidden mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-left">
+      <p class="font-bold text-yellow-800">💡 해설:</p>
+      <p id="explanation" class="text-gray-700 mt-1"></p>
+    </div>
 
-        // HTML 요소 가져오기
-        const scoreEl = document.getElementById('score');
-        const questionEl = document.getElementById('question');
-        const feedbackEl = document.getElementById('feedback');
-        const explanationBox = document.getElementById('explanation-box');
-        const explanationEl = document.getElementById('explanation');
-        const btnO = document.getElementById('btn-o');
-        const btnX = document.getElementById('btn-x');
-        const nextButton = document.getElementById('next-button');
-        const answerButtons = document.getElementById('answer-buttons');
-        
-        const resultModal = document.getElementById('result-modal');
-        const finalScoreEl = document.getElementById('final-score');
-        const finalMessageEl = document.getElementById('final-message'); // 추가된 메시지 요소
-        const restartButton = document.getElementById('restart-button');
+    <div id="answer-buttons" class="grid grid-cols-2 gap-4 my-6">
+      <button id="btn-o" class="btn-press bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-lg text-4xl shadow-md">O</button>
+      <button id="btn-x" class="btn-press bg-red-500 hover:bg-red-600 text-white font-bold py-4 rounded-lg text-4xl shadow-md">X</button>
+    </div>
 
-        // 게임 상태 변수
-        let currentQuestionIndex = 0;
-        let score = 0;
+    <button id="next-button" class="btn-press w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 rounded-lg hidden">다음 문제</button>
+  </div>
 
-        // 게임 시작 및 문제 로드 함수
-        function loadQuestion() {
-            // 피드백 및 해설 초기화
-            feedbackEl.textContent = '';
-            feedbackEl.className = 'text-2xl font-bold mb-4 min-h-[32px]';
-            explanationBox.classList.add('hidden');
-            
-            // 문제 표시
-            const currentQuestion = quizData[currentQuestionIndex];
-            questionEl.textContent = currentQuestion.question;
-            
-            // 점수 업데이트
-            scoreEl.textContent = 점수: ${score};
-            
-            // 버튼 활성화 및 다음 버튼 숨기기
-            answerButtons.classList.remove('hidden');
-            btnO.disabled = false;
-            btnX.disabled = false;
-            nextButton.classList.add('hidden');
-        }
+  <div id="result-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white p-8 rounded-2xl shadow-xl text-center w-11/12 max-w-sm">
+      <h2 class="text-2xl font-bold mb-4">퀴즈 종료!</h2>
+      <p id="final-score" class="text-xl mb-2"></p>
+      <p id="final-message" class="text-lg mb-6 text-gray-700 font-medium"></p>
+      <button id="restart-button" class="btn-press w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-lg">다시 시작하기</button>
+    </div>
+  </div>
 
-        // 정답 확인 함수
-        function checkAnswer(userAnswer) {
-            const currentQuiz = quizData[currentQuestionIndex];
-            const correctAnswer = currentQuiz.answer;
-            
-            // O, X 버튼 비활성화
-            btnO.disabled = true;
-            btnX.disabled = true;
+  <script>
+    const quizData = [
+      {
+        question: "'아무 생각 말고 푹 쉬어'라는 조언은, 머릿속이 늘 바쁜 우리에겐 '에베레스트산을 등반해봐'처럼 느껴질 때가 있다.",
+        answer: true,
+        explanation: "맞아요. 생각이 꼬리에 꼬리를 물 때 '생각을 멈추는 것'은 거의 불가능에 가깝죠. 그럴 땐 차라리 다른 곳에 집중할 수 있는 가벼운 활동이 도움이 될 수 있어요."
+      },
+      {
+        question: "나의 회복 과정에서 가장 중요한 전문가는 의사나 상담사가 아니라, 바로 '나 자신'이다.",
+        answer: true,
+        explanation: "전문가는 회복의 길을 안내해주는 좋은 파트너이지만, 그 길을 걷는 주체는 바로 '나' 자신이죠. 나의 선택과 노력이 가장 중요합니다."
+      },
+      {
+        question: "정신과 약의 부작용으로 입이 마를 때, 달콤한 사탕이 가장 좋은 해결책이다.",
+        answer: false,
+        explanation: "사탕은 일시적으로 침을 나오게 하지만, 당분 때문에 오히려 충치를 유발하거나 입을 더 마르게 할 수 있어요. 무설탕 껌이나 물을 조금씩 마시는 것이 더 좋답니다."
+      },
+      {
+        question: "불안감이 갑자기 밀려올 때, '불안해하지 말자!'라고 억지로 다짐하는 것이 가장 효과적인 방법이다.",
+        answer: false,
+        explanation: "감정을 억지로 누르면 오히려 더 커질 수 있어요. '아, 내가 지금 불안하구나'라고 알아차려주고, 심호흡을 하거나 잠시 다른 생각을 하는 것이 도움이 될 수 있습니다."
+      },
+      {
+        question: "나와 비슷한 경험을 한 동료와의 대화는, 때로는 10번의 전문가 상담보다 더 큰 위로와 힘을 줄 수 있다.",
+        answer: true,
+        explanation: "물론이죠. '나만 그런 게 아니구나'라는 생각에서 오는 안도감과 유대감은 회복에 아주 큰 힘이 됩니다. 동료지원은 그래서 중요하죠."
+      },
+      {
+        question: "화가 고흐의 위대한 작품들은 그의 정신적 증상이 가장 심했을 때만 탄생했다.",
+        answer: false,
+        explanation: "고흐는 증상이 심할 땐 그림을 그릴 수 없었고, 비교적 안정적인 시기에 위대한 작품들을 남겼다고 해요. 창의성은 고통이 아닌 안정 속에서 더 빛날 수 있습니다."
+      },
+      {
+        question: "컨디션이 안 좋을 때, 일부러 더 활기차게 행동하면 기분도 따라서 좋아질 때가 있다.",
+        answer: true,
+        explanation: "네, '행동 활성화'라는 기법이에요. 가벼운 산책이나 즐거운 음악 듣기처럼, 작은 행동의 변화가 기분을 긍정적으로 이끌어줄 수 있습니다. 물론, 너무 억지로 할 필요는 없어요!"
+      }
+    ];
 
-            if (userAnswer === correctAnswer) {
-                score++;
-                feedbackEl.textContent = '정답입니다!';
-                feedbackEl.classList.add('text-green-500');
-            } else {
-                feedbackEl.textContent = '오답입니다!';
-                feedbackEl.classList.add('text-red-500');
-            }
-            
-            // 점수 즉시 업데이트
-            scoreEl.textContent = 점수: ${score};
+    const scoreEl = document.getElementById('score');
+    const questionEl = document.getElementById('question');
+    const feedbackEl = document.getElementById('feedback');
+    const explanationBox = document.getElementById('explanation-box');
+    const explanationEl = document.getElementById('explanation');
+    const btnO = document.getElementById('btn-o');
+    const btnX = document.getElementById('btn-x');
+    const nextButton = document.getElementById('next-button');
 
-            // 해설 표시
-            explanationEl.textContent = currentQuiz.explanation;
-            explanationBox.classList.remove('hidden');
-            
-            // 다음 문제 버튼 표시
-            nextButton.classList.remove('hidden');
-        }
+    const resultModal = document.getElementById('result-modal');
+    const finalScoreEl = document.getElementById('final-score');
+    const finalMessageEl = document.getElementById('final-message');
+    const restartButton = document.getElementById('restart-button');
 
-        // 다음 문제로 넘어가는 함수
-        function goToNextQuestion() {
-            currentQuestionIndex++;
-            if (currentQuestionIndex < quizData.length) {
-                loadQuestion();
-            } else {
-                showFinalResult();
-            }
-        }
-        
-        // 최종 결과 표시 함수 (수정됨)
-        function showFinalResult() {
-            // 최종 점수 표시
-            finalScoreEl.textContent = 총 ${quizData.length}문제 중 ${score}문제를 맞혔습니다!;
-            
-            // 점수에 따라 다른 메시지 표시
-            if (score >= 4) {
-                finalMessageEl.textContent = "훌륭해요! 마음의 힘을 키우는 방법을 잘 알고 계시는군요. 앞으로도 자신을 믿고 나아가세요!";
-                finalMessageEl.classList.add('text-blue-600');
-                finalMessageEl.classList.remove('text-gray-700');
-            } else {
-                finalMessageEl.textContent = "괜찮아요! 퀴즈를 통해 새로운 사실을 알아가는 것만으로도 큰 의미가 있어요. 다시 한번 도전해보세요!";
-                finalMessageEl.classList.add('text-gray-700');
-                finalMessageEl.classList.remove('text-blue-600');
-            }
-            
-            resultModal.classList.remove('hidden');
-        }
-        
-        // 게임 재시작 함수
-        function restartGame() {
-            currentQuestionIndex = 0;
-            score = 0;
-            resultModal.classList.add('hidden');
-            // 문제를 다시 섞어주어 새로운 순서로 플레이 가능
-            quizData.sort(() => Math.random() - 0.5);
-            loadQuestion();
-        }
+    let currentQuestionIndex = 0;
+    let score = 0;
 
-        // 이벤트 리스너 설정
-        btnO.addEventListener('click', () => checkAnswer(true));
-        btnX.addEventListener('click', () => checkAnswer(false));
-        nextButton.addEventListener('click', goToNextQuestion);
-        restartButton.addEventListener('click', restartGame);
+    function loadQuestion() {
+      feedbackEl.textContent = '';
+      feedbackEl.className = 'text-2xl font-bold mb-4 min-h-[32px]';
+      explanationBox.classList.add('hidden');
 
-        // 게임 시작
-        // 문제를 섞어서 매번 다른 순서로 출제
-        quizData.sort(() => Math.random() - 0.5);
+      const currentQuestion = quizData[currentQuestionIndex];
+      questionEl.textContent = currentQuestion.question;
+      scoreEl.textContent = `점수: ${score}`;
+
+      btnO.disabled = false;
+      btnX.disabled = false;
+      nextButton.classList.add('hidden');
+    }
+
+    function checkAnswer(userAnswer) {
+      const currentQuiz = quizData[currentQuestionIndex];
+      const correctAnswer = currentQuiz.answer;
+
+      btnO.disabled = true;
+      btnX.disabled = true;
+
+      if (userAnswer === correctAnswer) {
+        score++;
+        feedbackEl.textContent = '정답입니다!';
+        feedbackEl.classList.add('text-green-500');
+      } else {
+        feedbackEl.textContent = '오답입니다!';
+        feedbackEl.classList.add('text-red-500');
+      }
+
+      scoreEl.textContent = `점수: ${score}`;
+      explanationEl.textContent = currentQuiz.explanation;
+      explanationBox.classList.remove('hidden');
+      nextButton.classList.remove('hidden');
+    }
+
+    function goToNextQuestion() {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < quizData.length) {
         loadQuestion();
-    </script>
+      } else {
+        showFinalResult();
+      }
+    }
+
+    function showFinalResult() {
+      finalScoreEl.textContent = `총 ${quizData.length}문제 중 ${score}문제를 맞혔습니다!`;
+
+      if (score >= 4) {
+        finalMessageEl.textContent = "훌륭해요! 마음의 힘을 키우는 방법을 잘 알고 계시는군요. 앞으로도 자신을 믿고 나아가세요!";
+        finalMessageEl.classList.add('text-blue-600');
+        finalMessageEl.classList.remove('text-gray-700');
+      } else {
+        finalMessageEl.textContent = "괜찮아요! 퀴즈를 통해 새로운 사실을 알아가는 것만으로도 큰 의미가 있어요. 다시 한번 도전해보세요!";
+        finalMessageEl.classList.add('text-gray-700');
+        finalMessageEl.classList.remove('text-blue-600');
+      }
+
+      resultModal.classList.remove('hidden');
+    }
+
+    function restartGame() {
+      currentQuestionIndex = 0;
+      score = 0;
+      resultModal.classList.add('hidden');
+      quizData.sort(() => Math.random() - 0.5);
+      loadQuestion();
+    }
+
+    btnO.addEventListener('click', () => checkAnswer(true));
+    btnX.addEventListener('click', () => checkAnswer(false));
+    nextButton.addEventListener('click', goToNextQuestion);
+    restartButton.addEventListener('click', restartGame);
+
+    quizData.sort(() => Math.random() - 0.5);
+    loadQuestion();
+  </script>
 </body>
 </html>
-### 주요 변경 사항
-
-1.  **HTML (`result-modal` 내부):**
-    * 최종 메시지를 표시할 `<p id="final-message">` 요소를 추가했습니다.
-
-2.  **JavaScript (`showFinalResult` 함수):**
-    * `score` 변수 값을 확인하는 `if` 문을 추가했습니다.
-    * `score`가 4 이상이면 `final-message` 요소에 축하 메시지를 표시하고 글자색을 파란색으로 바꿉니다.
-    * `score`가 4 미만이면 격려 메시지를 표시하고 기본 글자색을 유지합니다.
